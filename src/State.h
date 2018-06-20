@@ -20,6 +20,12 @@ public:
 
 	static glm::vec3 eyePos;
 
+
+	static std::shared_ptr<Shader>	overrideShader;
+	static glm::mat4				depthBiasMatrix;
+	static bool					shadows;
+
+
 	State() {};
 	~State() {};
 

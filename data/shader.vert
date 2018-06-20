@@ -25,6 +25,9 @@ uniform float refractionCoef;
 uniform vec3 eyePos;
 uniform mat4 ModelMatrix;
 
+uniform mat4 depthBiasMatrix;
+varying vec3 textureVertex;
+
 void main() {
 	gl_Position = mvpMatrix * vec4(vpos, 1);
 	vec4 tempN = normalsMatrix * vec4(vnormal, 0);

@@ -38,6 +38,9 @@ varying vec3 uvw;
 vec3 normalizedN;
 
 
+uniform bool castShadows;
+uniform sampler2D shadowTexture;
+
 
 struct LightInfo                                                           
 {  

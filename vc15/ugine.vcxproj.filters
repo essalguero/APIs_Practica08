@@ -72,6 +72,9 @@
     <ClCompile Include="..\src\Emitter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\lib\glew\glew.h">
@@ -125,12 +128,21 @@
     <ClInclude Include="..\src\Emitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Framebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\shader.frag">
       <Filter>Shaders</Filter>
     </None>
     <None Include="..\data\shader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\data\shadow_shader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\data\shadow_shader.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

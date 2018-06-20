@@ -149,3 +149,35 @@ bool Texture::isCube() const
 {
 	return isCubemap;
 }
+
+Texture::Texture(uint16_t width, uint16_t height, bool isDepth)
+{
+	GLuint textureId;
+
+	// Flip image as the image in files is stored in top/bottom order
+	// while OpenGL is expecting the file to be in bottom/up order
+	stbi_set_flip_vertically_on_load(true);
+
+	imageHeight = height;
+	imageWidth = width;
+
+	glGenTextures(1, &textureId);
+
+	glBindTexture(GL_TEXTURE_2D, textureId);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, imageWidth, imageHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, nullptr);
+
+	//glGenerateMipmap(GL_TEXTURE_2D);
+
+	isDepthTexture = isDepth;
+}
+
+bool Texture::isDepth() const
+{
+	return isDepthTexture;
+}

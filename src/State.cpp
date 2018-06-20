@@ -11,3 +11,8 @@ std::vector<std::shared_ptr<Light>> State::lights;
 glm::vec3 State::ambient;
 
 glm::vec3 State::eyePos;
+
+
+std::shared_ptr<Shader>	overrideShader;
+glm::mat4				depthBiasMatrix;
+bool					shadows;

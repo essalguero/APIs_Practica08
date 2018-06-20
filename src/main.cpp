@@ -80,65 +80,22 @@ void configureEmitter(std::shared_ptr<Emitter>& emitter, glm::vec4 minColorRange
 int createModelsInWorld(World & world, std::vector<Emitter>& emittersVector)
 {
 	// Load skybox model from file
-	std::shared_ptr<Mesh>skyboxMesh = Mesh::load("data/skybox.msh.xml");
+	std::shared_ptr<Mesh>sceneMesh = Mesh::load("data/scene.msh.xml");
 
-	if (skyboxMesh == nullptr)
+	if (sceneMesh == nullptr)
 		return 0;
 
 	// Create model
-	shared_ptr<Model> skyboxModel = make_shared<Model>(skyboxMesh);
+	shared_ptr<Model> sceneModel = make_shared<Model>(sceneMesh);
 	//skyboxModel->setScale(vec3(20.0f, 20.0f, 20.0f));
-	skyboxModel->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	sceneModel->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	sceneModel->setRotation(glm::vec3(0.0f, 180.0f, 0.0f));
 	//skyboxMesh->getMaterial(0).setLighting(false);
 
 	// Add model
-	world.addEntity(skyboxModel);
+	world.addEntity(sceneModel);
 
 
-	// Load Suzanne model from file
-	std::shared_ptr<Mesh> suzanneMesh = Mesh::load("data/suzanne_refract.msh.xml");
-
-	if (suzanneMesh == nullptr)
-	return 0;
-
-	// Create model
-	shared_ptr<Model> suzanneModel = make_shared<Model>(suzanneMesh);
-	suzanneModel->setScale(vec3(1.0f, 1.0f, 1.0f));
-	suzanneModel->setPosition(glm::vec3(-4.0f, 0.0f, 0.0f));
-
-	// Add model
-	world.addEntity(suzanneModel);
-
-
-	// Load teapot model from file
-	std::shared_ptr<Mesh> teapotMesh = Mesh::load("data/teapot_reflect.msh.xml");
-
-	if (teapotMesh == nullptr)
-		return 0;
-
-	// Create model
-	shared_ptr<Model> teapotModel = make_shared<Model>(teapotMesh);
-	teapotModel->setScale(vec3(1.0f, 1.0f, 1.0f));
-	teapotModel->setPosition(glm::vec3(4.0f, 0.0f, 0.0f));
-
-	// Add model
-	world.addEntity(teapotModel);
-
-
-	// Load the cube model from file
-	std::shared_ptr<Mesh> cubeMesh = Mesh::load("data/cube.msh.xml");
-	//cubeMesh->getMaterial(0).setNormalTexture(nullptr);
-
-	if (cubeMesh == nullptr)
-		return 0;
-
-	// Create model - Column
-	shared_ptr<Model> cubeModel = make_shared<Model>(cubeMesh);
-	//cubeModel->setScale(vec3(0.01f, 0.01f, 0.01f));
-	cubeModel->setPosition(glm::vec3(0.0f, 0.0f, -4.0f));
-
-	// Add model - Column
-	world.addEntity(cubeModel);
 
 	
 
@@ -193,8 +150,8 @@ int main(int, char**) {
 
 	// Generate a camera and store it in the world
 	shared_ptr<Camera> camera = make_shared<Camera>();
-	camera->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	camera->setRotation(glm::vec3(0, 0, 0));
+	camera->setPosition(glm::vec3(0.0f, 10.0f, 20.0f));
+	camera->setRotation(glm::vec3(-15, 0, 0));
 	camera->setClearColor(glm::vec3(0.0f, 0.0f, 0.0f));
 	world.addEntity(camera);
 
@@ -266,15 +223,14 @@ int main(int, char**) {
 		camera->setViewport(glm::ivec4(0, 0, screenWidth, screenHeight));
 
 		//Camera rotation
-		camera->setPosition(glm::vec3(0, 0, 0));
+		/*camera->setPosition(glm::vec3(0, 0, 0));
 		angle += 32 * deltaTime;
 		camera->setRotation(glm::vec3(0, angle, 0));
 		camera->move(glm::vec3(0, 0, 10));
-		camera->setPosition(camera->getPosition());
+		camera->setPosition(camera->getPosition());*/
 
-		// Set position para el skybox y para la luz
-		world.getEntity(1)->setPosition(camera->getPosition());
-		world.getEntity(world.getNumEntities() - 1)->setPosition(camera->getPosition());
+		// Set position para la luz
+		//world.getEntity(world.getNumEntities() - 1)->setPosition(camera->getPosition());
 
 		// Set projection matrix in case the screen has been resized
 		glm::mat4 projectionMatrix = glm::perspective(45.0f,
