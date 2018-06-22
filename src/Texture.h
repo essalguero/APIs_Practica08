@@ -24,17 +24,18 @@ public:
 		const char* top, const char* bottom);
 	bool isCube() const;
 
-	Texture(uint16_t width, uint16_t height, bool isDepth = false);
+	static std::shared_ptr<Texture> createTexture(uint16_t width, uint16_t height, bool isDepth = false);
 	bool isDepth() const;
 
-
+	void setDepthTexture(bool isDepth);
 
 protected:
 	Texture(GLuint textureId, int height, int width);
-	~Texture() {};
 	static void destroy(Texture* p) {
 		delete p;
 	}
+
+	~Texture();
 
 private:
 	uint32_t textureId;

@@ -7,7 +7,8 @@ Framebuffer::Framebuffer(
 	colorTexture = colorTex;
 	depthTexture = depthTex;
 
-	glGenFramebuffers(1, &idFrameBuffer);
+	glGenFramebuffers(1, &idFrameBuffer);
+
 }
 
 Framebuffer::~Framebuffer()
@@ -32,10 +33,13 @@ const std::shared_ptr<Texture>& Framebuffer::getDepthTexture() const
 
 void Framebuffer::bind() const
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, idFrameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, idFrameBuffer);
+
+	if (!colorTexture)
+		glDrawBuffer(GL_NONE);
 }
 
 void Framebuffer::bindScreen()
 {
-	//glBindFramebuffer(GL_FRAMEBUFFER, idFrameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

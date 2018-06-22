@@ -43,7 +43,11 @@ void Material::setTexture(const std::shared_ptr<Texture>& tex)
 
 void Material::prepare()
 { 
-	std::shared_ptr<Shader> shader = getShader();
+	std::shared_ptr<Shader> shader;
+	if (State::overrideShader)
+		shader = State::overrideShader;
+	else
+		shader = getShader();;
 
 	shader->use();
 
@@ -54,6 +58,9 @@ void Material::prepare()
 	glm::mat4 normalsMatrix(mvMatrix);
 	normalsMatrix = glm::transpose(glm::inverse(normalsMatrix));
 
+
+	shader->setMatrix(shader->getLocation("depthBiasMatrix"), State::depthBiasMatrix);
+	shader->setInt(shader->getLocation("castShadows"), State::shadows);
 
 	shader->setMatrix(shader->getLocation("mvMatrix"), mvMatrix);
 	shader->setMatrix(shader->getLocation("normalsMatrix"), normalsMatrix);
@@ -191,8 +198,10 @@ void Material::prepare()
 	if (hasColorLoc != -1)
 	{
 		shader->setInt(hasColorLoc, 1);
-		shader->setVec4(colorLoc, materialColor);
+		
 	}
+	shader->setVec4(colorLoc, materialColor);
+
 
 	int variableLocation = shader->getLocation("numberLights");
 	if (lighting)

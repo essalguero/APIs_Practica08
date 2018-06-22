@@ -40,6 +40,9 @@ vec3 normalizedN;
 
 uniform bool hasTexture;
 
+uniform bool castShadows;
+uniform sampler2D shadowTexture;
+varying vec3 depthCoord;
 
 struct LightInfo
 {
@@ -72,14 +75,9 @@ LightComponents calculateLight(int i)
     {
         // Lee una normal de la textura
         vec3 normalTextureSample;
-        /*if (isCubemap)
-        {
-            normalTextureSample = textureCube(normalTextureCube, uvw).xyz;
-        }
-        else
-        {*/
+        
             normalTextureSample = texture2D(normalTexture, fTexture).xyz;
-        //}
+        
         
         // Convertirla a normal a partir de rgb... Segun apuntes, para pasar de normal a normal = (rgb * 0.5) + 0.5
         // Paso contrario rgb = (normal - 0.5) / 0.5
@@ -130,7 +128,7 @@ void main()
     
 	// Si tiene luces, calcula el valor de difuso y especular
 	// Si no tiene, los valores a los que se han inicializado arriba
-	// son válidos para los cálculos
+	// son validos para los calculos
     if (numberLights > 0)
     {
         diffuseComponent = vec3(0.0, 0.0, 0.0);
@@ -144,6 +142,10 @@ void main()
             
         }
     }
+
+	diffuseComponent = min(diffuseComponent, vec3(1, 1, 1));
+	specularComponent = min(specularComponent, vec3(1, 1, 1));
+
         
     //if (hasColor) // Ahora todos los objetos deberian tener color (inicializado a vec4(1, 1, 1, 1) por defecto si no lo especifica el fichero de la maya
     //{
@@ -151,24 +153,44 @@ void main()
         if (isTexturized)
         {
             
-			vec4 calculatedColor = vec4(diffuseComponent, 1) * color;
+			vec4 calculatedColor = vec4(1, 1, 1, 1);
             if (hasTexture)
              {
                  if (isCubemap)
                  {
-                     calculatedColor *= textureCube(texSamplerCube, uvw);
+                     calculatedColor = vec4(diffuseComponent, 1) * color * textureCube(texSamplerCube, uvw) + vec4(specularComponent, 0);
                  }
                  else
                  {
-                     calculatedColor *= texture2D(texSampler, fTexture);
+                     //calculatedColor = vec4(diffuseComponent, 1) * color * texture2D(texSampler, fTexture) + vec4(specularComponent, 0);
+					 //calculatedColor = texture2D(texSampler, fTexture) * color * vec4(diffuseComponent, 1) + vec4(specularComponent, 0);
                  }
              }
-            
-            calculatedColor += vec4(specularComponent, 0);
-            
-            vec3 mixedColor  = calculatedColor;
 
-            vec4 reflectionColor = vec4(0.0, 0.0, 0.0, 1.0);
+			 
+            
+            //calculatedColor += vec4(specularComponent, 0);
+            
+            //vec3 mixedColor  = calculatedColor;
+
+			if (castShadows)
+			{
+				vec4 shadowColor = vec4(1, 1, 1, 1);
+				if ( texture2D(shadowTexture, vec2(depthCoord)).z < depthCoord.z  - 0.0009)
+					shadowColor = vec4(0,0,0, 1);
+					//shadowColor = vec4(1, 1, 0, 1);
+
+				//gl_FragColor = texture2D(shadowTexture, vec2(depthCoord));
+				gl_FragColor = texture2D(texSampler, fTexture) * color * shadowColor * vec4(diffuseComponent, 1) + vec4(specularComponent, 0);
+			}
+			else
+			{
+				gl_FragColor = texture2D(texSampler, fTexture) * color * vec4(diffuseComponent, 1) + vec4(specularComponent, 0);
+			}
+
+			//gl_FragColor = calculatedColor;
+
+            /*vec4 reflectionColor = vec4(0.0, 0.0, 0.0, 1.0);
             if (hasReflectionTexture)
             {
                 if (isCubemap)
@@ -180,12 +202,13 @@ void main()
                     reflectionColor = texture2D(reflectionTexture, fTexture);
                 }
 
-				mixedColor = mix(mixedColor.rgb, reflectionColor.rgb, 1);
+				//calculatedColor = vec4(calculatedColor.rgb * reflectionColor.rgb, calculatedColor.a);
                 
             }
+
             
             vec4 refractionColor = vec4(0.0, 0.0, 0.0, 1.0);
-            if (hasRefractionTexture)
+            if (hasRefractionTexture == true)
             {
                 if (isCubemap)
                 {
@@ -195,18 +218,22 @@ void main()
                 {
                     refractionColor = texture2D(refractionTexture, fTexture);
                 }
-				mixedColor = mix(mixedColor.rgb, refractionColor.rgb, 1);
+				
+				//calculatedColor = vec4(calculatedColor.rgb * refractionColor.rgb, calculatedColor.a);
             }
             
             // El color final es la mezcla de todos los valores calculados
 			// Texture + refraction + reflection
-            gl_FragColor = vec4(mixedColor, 1);
+            //gl_FragColor = calculatedColor;
+			*/
+			
+			
 
-            
         }    // if (isTexturized)
         else
         {
             gl_FragColor = (vec4(diffuseComponent, 1) * color) + vec4(specularComponent, 0);
+
         }
         
     //} // if(hasColor)

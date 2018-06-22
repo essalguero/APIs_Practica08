@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "Entity.h"
+#include "Framebuffer.h"
 
 class Camera : public Entity
 {
@@ -19,8 +20,13 @@ public:
 	void setClearColor(const glm::vec3& color) { clearColor = color; };
 	void prepare();
 
+	void setFramebuffer(const std::shared_ptr<Framebuffer>& framebuffer);
+	const std::shared_ptr<const Framebuffer> getFramebuffer() const;
+
 private:
 	glm::vec3 clearColor;
 	glm::ivec4 viewPort;
 	glm::mat4 projectionMatrix;
+
+	std::shared_ptr<Framebuffer> cameraFramebuffer;
 };

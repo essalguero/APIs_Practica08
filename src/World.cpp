@@ -3,6 +3,31 @@
 
 #include <algorithm>
 
+std::string readStringWorld(const char* filename) {
+	std::ifstream f(filename, std::ios_base::binary);
+	std::stringstream ss;
+	ss << f.rdbuf();
+	return ss.str();
+}
+
+World::World()
+{
+	std::shared_ptr<Texture> depthTexture = Texture::createTexture(1024, 1024, true);
+	std::shared_ptr<Framebuffer> depthFramebuffer = std::make_shared<Framebuffer>(nullptr, depthTexture);
+
+	depthCamera = std::make_shared<Camera>(depthFramebuffer->getDepthTexture()->getSize());
+	depthCamera->setFramebuffer(depthFramebuffer);
+
+	// Store the Shader in the global object State
+	std::shared_ptr<Shader> depthShader = Shader::create(readStringWorld("data/shadow_shader.vert"), readStringWorld("data/shadow_shader.frag"));
+
+	// If there  was any error on the generation of the sharder, raise an error
+	if (strcmp(depthShader->getError(), "") != 0)
+	{
+		std::cout << depthShader->getError() << std::endl;
+		depthShader = nullptr;
+	}
+}
 
 void World::addEntity(const std::shared_ptr<Entity>& entity)
 {
@@ -136,6 +161,56 @@ void World::update(float deltaTime)
 
 void World::draw()
 {
+
+	if (castShadows)
+	{
+		std::shared_ptr<Light> directionalLight;
+		for (int i = 0; i < lightsVector.size(); ++i)
+		{
+			if (lightsVector.at(i)->getType() == Light::Type::DIRECTIONAL)
+			{
+				directionalLight = lightsVector.at(i);
+				break;
+			}
+		}
+
+		if (directionalLight)
+		{
+			State::overrideShader = depthShader;
+
+			glm::vec3 cameraPosition = depthCamera->getPosition();
+			normalize(cameraPosition);
+
+			glm::vec3 halfwayVector = farValue * cameraPosition;
+
+			depthCamera->setPosition(halfwayVector);
+
+			halfwayVector = -1.0f * halfwayVector;
+
+			depthCamera->setRotation(glm::vec3(asin(halfwayVector.y), atan2(-halfwayVector.x, -halfwayVector.y), 0));
+
+			depthCamera->setProjection(orthoMatrix);
+
+			depthCamera->prepare();
+
+			depthCamera->draw();
+
+			glm::mat4 depthBiasMatrix = glm::mat4(glm::vec4(0.5f, 0, 0, 0), 
+				glm::vec4(0, 0.5f, 0, 0), 
+				glm::vec4(0, 0, 0.5f, 0), 
+				glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+
+			State::depthBiasMatrix = depthBiasMatrix * State::projectionMatrix * State::viewMatrix;
+
+			depthCamera->getFramebuffer()->getDepthTexture()->bind(15);
+
+			State::overrideShader = nullptr;
+
+		}
+	}
+
+	State::shadows = castShadows;
+
 	State::ambient = ambientLight;
 	State::lights = lightsVector;
 
@@ -157,4 +232,19 @@ const glm::vec3& World::getAmbient() const
 void World::setAmbient(const glm::vec3& ambient)
 {
 	ambientLight = ambient;
+}
+
+
+void World::setShadows(bool enable)
+{
+	castShadows = enable;
+}
+
+void World::setDepthOrtho(float left, float right,
+	float bottom, float top, float near, float far)
+{
+
+	orthoMatrix = glm::ortho<float>(left, right, bottom, top, near, far);
+
+	farValue = far;
 }
