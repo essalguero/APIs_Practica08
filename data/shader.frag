@@ -186,9 +186,9 @@ void main()
 
 				rValue = texture2D(shadowTexture, vec2(depthCoord)).r;
 
-				gl_FragColor = vec4(vec3(rValue), 1.0);
+				//gl_FragColor = vec4(vec3(rValue), 1.0);
 				//gl_FragColor = texture2D(shadowTexture, vec2(depthCoord));
-				//gl_FragColor = texture2D(texSampler, fTexture) * color * shadowColor * vec4(diffuseComponent, 1) + vec4(specularComponent, 0);
+				gl_FragColor = texture2D(texSampler, fTexture) * color * shadowColor * vec4(diffuseComponent, 1) + vec4(specularComponent, 0);
 			}
 			else
 			{
