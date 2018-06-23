@@ -12,10 +12,11 @@ std::string readStringWorld(const char* filename) {
 
 World::World()
 {
-	std::shared_ptr<Texture> depthTexture = Texture::createTexture(1024, 1024, true);
+	glm::vec2 bufferSize = glm::vec2(1024, 1024);
+	std::shared_ptr<Texture> depthTexture = Texture::createTexture(bufferSize.x, bufferSize.y, true);
 	std::shared_ptr<Framebuffer> depthFramebuffer = std::make_shared<Framebuffer>(nullptr, depthTexture);
 
-	depthCamera = std::make_shared<Camera>(depthFramebuffer->getDepthTexture()->getSize());
+	depthCamera = std::make_shared<Camera>(bufferSize);
 	depthCamera->setFramebuffer(depthFramebuffer);
 
 	// Store the Shader in the global object State
@@ -178,16 +179,16 @@ void World::draw()
 		{
 			State::overrideShader = depthShader;
 
-			glm::vec3 cameraPosition = depthCamera->getPosition();
-			normalize(cameraPosition);
+			glm::vec3 lightPosition = directionalLight->getPosition();
+			normalize(lightPosition);
 
-			glm::vec3 halfwayVector = farValue * cameraPosition;
+			glm::vec3 halfwayVector = 0.5f * farValue * lightPosition;
 
 			depthCamera->setPosition(halfwayVector);
 
-			halfwayVector = -1.0f * halfwayVector;
+			glm::vec3 lightDirectionVector = -1.0f * halfwayVector;
 
-			depthCamera->setRotation(glm::vec3(asin(halfwayVector.y), atan2(-halfwayVector.x, -halfwayVector.y), 0));
+			depthCamera->setRotation(glm::vec3(asin(lightDirectionVector.y), atan2(-lightDirectionVector.x, -lightDirectionVector.z), 0));
 
 			depthCamera->setProjection(orthoMatrix);
 
@@ -195,12 +196,12 @@ void World::draw()
 
 			depthCamera->draw();
 
-			glm::mat4 depthBiasMatrix = glm::mat4(glm::vec4(0.5f, 0, 0, 0), 
+			glm::mat4 biasMatrix = glm::mat4(glm::vec4(0.5f, 0, 0, 0), 
 				glm::vec4(0, 0.5f, 0, 0), 
 				glm::vec4(0, 0, 0.5f, 0), 
 				glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
 
-			State::depthBiasMatrix = depthBiasMatrix * State::projectionMatrix * State::viewMatrix;
+			State::depthBiasMatrix = biasMatrix * State::projectionMatrix * State::viewMatrix;
 
 			depthCamera->getFramebuffer()->getDepthTexture()->bind(15);
 

@@ -230,11 +230,29 @@ int main(int, char**) {
 
 		// Set luz
 		shared_ptr<Light> light = std::dynamic_pointer_cast<Light>(world.getEntity(world.getNumEntities() - 1)); //->setPosition(camera->getPosition());
-		angle += + 32 * deltaTime;
-		light->setPosition(glm::vec3(0, 0, 0));
-		light->setRotation(glm::vec3(-30, angle, 0));
-		light->setPosition(glm::vec3(0, 0, 1));
+		angle += 32 * deltaTime;
 
+		std::cout << angle << std::endl;
+
+		//light->setPosition(glm::vec3(0, 0, 0));
+		/*glm::quat rotQuaternion = glm::rotate(glm::quat(), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::quat rotQuaternion2 = glm::rotate(rotQuaternion, glm::radians(-30.0f), glm::vec3(1.0f, 0.0f, 0.0f)); //glm::rotate(rotQuaternion, glm::radians(-30), glm::vec3(1.0f, 0.0f, 0.0f));
+		light->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+		//light->setRotationQuat(rotQuaternion2);
+		light->setRotation(glm::vec3(angle, 0.0f, angle));
+		//light->setRotation(glm::vec3(-30, angle, 0));
+		//light->setPosition(glm::vec3(0, 0, 1));*/
+
+
+		angle += deltaTime * 32.0f;
+		glm::quat rot = glm::rotate(glm::quat(), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+		light->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		rot = glm::rotate(rot, glm::radians(-30.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		light->setRotationQuat(rot);
+		light->move(glm::vec3(0.0f, 0.0f, 1.0f));
+
+		//camera->setPosition(light->getPosition());
+		
 
 		// Set projection matrix in case the screen has been resized
 		glm::mat4 projectionMatrix = glm::perspective(45.0f,

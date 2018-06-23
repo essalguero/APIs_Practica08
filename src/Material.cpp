@@ -47,7 +47,7 @@ void Material::prepare()
 	if (State::overrideShader)
 		shader = State::overrideShader;
 	else
-		shader = getShader();;
+		shader = getShader();
 
 	shader->use();
 

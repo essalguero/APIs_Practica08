@@ -9,6 +9,16 @@ Framebuffer::Framebuffer(
 
 	glGenFramebuffers(1, &idFrameBuffer);
 
+	if (colorTexture)
+	{
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTexture->getId(), 0);
+	}
+
+	if (depthTexture)
+	{
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture->getId(), 0);
+	}
+
 }
 
 Framebuffer::~Framebuffer()

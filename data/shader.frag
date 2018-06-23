@@ -176,12 +176,19 @@ void main()
 			if (castShadows)
 			{
 				vec4 shadowColor = vec4(1, 1, 1, 1);
+				float rValue;
 				if ( texture2D(shadowTexture, vec2(depthCoord)).z < depthCoord.z  - 0.0009)
-					shadowColor = vec4(0,0,0, 1);
-					//shadowColor = vec4(1, 1, 0, 1);
+				{
+					shadowColor = texture2D(shadowTexture, vec2(depthCoord));
+					
+					//shadowColor = vec4(ambientLight, 1);
+				}
 
+				rValue = texture2D(shadowTexture, vec2(depthCoord)).r;
+
+				gl_FragColor = vec4(vec3(rValue), 1.0);
 				//gl_FragColor = texture2D(shadowTexture, vec2(depthCoord));
-				gl_FragColor = texture2D(texSampler, fTexture) * color * shadowColor * vec4(diffuseComponent, 1) + vec4(specularComponent, 0);
+				//gl_FragColor = texture2D(texSampler, fTexture) * color * shadowColor * vec4(diffuseComponent, 1) + vec4(specularComponent, 0);
 			}
 			else
 			{
